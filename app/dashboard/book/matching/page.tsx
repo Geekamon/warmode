@@ -101,12 +101,21 @@ export default function MatchingPage() {
         const matchedSessionId = data as string;
         setSessionId(matchedSessionId);
 
-        // Check if we're the host or partner
-        const { data: session } = await supabase
-          .from('sessions')
-          .select('host_id, partner_id, status')
-          .eq('id', matchedSessionId)
-          .single();
+        // Small delay to let the RPC transaction fully commit before reading
+        await new Promise((r) => setTimeout(r, 500));
+
+        // Read session back — retry up to 3 times if status hasn't propagated
+        let session = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const { data: s } = await supabase
+            .from('sessions')
+            .select('host_id, partner_id, status')
+            .eq('id', matchedSessionId)
+            .single();
+          session = s;
+          if (session && (session.status === 'matched' || session.host_id === user!.id)) break;
+          await new Promise((r) => setTimeout(r, 500));
+        }
 
         if (session) {
           const weAreHost = session.host_id === user!.id;
@@ -121,8 +130,8 @@ export default function MatchingPage() {
               .eq('id', matchedSessionId);
           }
 
-          if (session.status === 'matched' && session.partner_id) {
-            // Already matched — get partner info immediately
+          if (session.partner_id && (session.status === 'matched' || !weAreHost)) {
+            // We joined an existing session (we're the partner) OR session is already matched
             const partnerId = weAreHost ? session.partner_id : session.host_id;
             await handleMatchFound(partnerId!);
           } else {
