@@ -44,7 +44,16 @@ export default function LoginPage() {
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Invalid email or password');
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('Invalid login credentials')) {
+        setError('Incorrect email or password. Please try again.');
+      } else if (msg.includes('Email not confirmed')) {
+        setError('Please check your email and confirm your account first.');
+      } else if (msg.includes('Too many requests')) {
+        setError('Too many login attempts. Please wait a moment and try again.');
+      } else {
+        setError(msg || 'Something went wrong. Please try again.');
+      }
       setLoading(false);
     }
   };
@@ -131,7 +140,7 @@ export default function LoginPage() {
               onBlur={(e) => (e.currentTarget.style.borderColor = '#2A2A2A')}
             />
             <a
-              href="#"
+              href="/forgot-password"
               className="text-xs mt-1 inline-block transition hover:opacity-80"
               style={{ color: '#F9A825' }}
             >
