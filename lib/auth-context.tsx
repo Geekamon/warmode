@@ -86,6 +86,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) throw error;
+
+      // Send welcome email (fire and forget)
+      fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'welcome',
+          to: email,
+          name: fullName,
+        }),
+      }).catch(() => {}); // Don't block signup if email fails
     } finally {
       setLoading(false);
     }

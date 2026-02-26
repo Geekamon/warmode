@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase';
 export default function MatchingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const duration = searchParams.get('duration') || '50';
   const mode = searchParams.get('mode') || 'video';
@@ -111,6 +111,22 @@ export default function MatchingPage() {
       setPartnerCity(partner.city || '');
       setPartnerStreak(partner.streak_current || 0);
       setPartnerSessions(partner.total_sessions || 0);
+
+      // Send match email (fire and forget)
+      if (user?.email && profile) {
+        fetch('/api/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'matched',
+            to: user.email,
+            name: profile.full_name,
+            partnerName: partner.full_name,
+            duration: parseInt(duration),
+            scheduledAt: new Date().toISOString(),
+          }),
+        }).catch(() => {});
+      }
     }
   }
 

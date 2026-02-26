@@ -148,10 +148,26 @@ export default function SessionPage() {
       .from('sessions')
       .update({ status: 'completed', ended_at: new Date().toISOString() })
       .eq('id', sessionId)
-      .then(() => {});
+      .then(() => {
+        // Send completion email (fire and forget)
+        if (user?.email && profile) {
+          fetch('/api/email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'complete',
+              to: user.email,
+              name: profile.full_name,
+              duration,
+              streak: profile.streak_current,
+              totalSessions: profile.total_sessions,
+            }),
+          }).catch(() => {});
+        }
+      });
 
-    router.push(`/dashboard/book/complete?id=${sessionId}&duration=${duration}`);
-  }, [endCall, sessionId, duration, router]);
+    router.push(`/dashboard/book/complete?session=${sessionId}&duration=${duration}`);
+  }, [endCall, sessionId, duration, router, user, profile]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

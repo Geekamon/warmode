@@ -1,18 +1,57 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 
 export default function CompletePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user, profile } = useAuth();
   const [selectedRating, setSelectedRating] = useState<string | null>(null);
+  const [ratingSaved, setRatingSaved] = useState(false);
+  const [sessionData, setSessionData] = useState<any>(null);
 
-  const handleBookAnother = () => {
-    router.push('/dashboard/book');
-  };
+  const sessionId = searchParams.get('session');
+  const duration = searchParams.get('duration') || '50';
 
-  const handleBackToDashboard = () => {
-    router.push('/dashboard');
+  // Fetch session data
+  useEffect(() => {
+    if (!sessionId || !user) return;
+    const fetchSession = async () => {
+      const { data } = await supabase
+        .from('sessions')
+        .select('*')
+        .eq('id', sessionId)
+        .single();
+      if (data) setSessionData(data);
+    };
+    fetchSession();
+  }, [sessionId, user]);
+
+  const handleRate = async (value: string) => {
+    setSelectedRating(value);
+    if (!sessionId || !user || ratingSaved) return;
+
+    // Map rating to a number
+    const ratingMap: Record<string, number> = {
+      fire: 5,
+      good: 4,
+      okay: 3,
+      bad: 1,
+    };
+
+    const ratingField = sessionData?.host_id === user.id ? 'host_rating' : 'partner_rating';
+
+    const { error } = await supabase
+      .from('sessions')
+      .update({ [ratingField]: ratingMap[value] })
+      .eq('id', sessionId);
+
+    if (!error) {
+      setRatingSaved(true);
+    }
   };
 
   const ratings = [
@@ -23,49 +62,52 @@ export default function CompletePage() {
   ];
 
   const stats = [
-    { label: 'Duration', value: '50 min', icon: '⏱️' },
-    { label: 'Streak', value: '🔥 8 days', icon: null },
-    { label: 'Total', value: '#48', icon: '⚔️' },
-    { label: 'Focus Score', value: '96%', icon: '📊' },
+    { label: 'Duration', value: `${duration} min`, icon: '⏱️' },
+    { label: 'Streak', value: `🔥 ${profile?.streak_current || 0} days`, icon: null },
+    { label: 'Total', value: `#${profile?.total_sessions || 0}`, icon: '⚔️' },
+    { label: 'Hours', value: `${profile?.total_hours?.toFixed(1) || '0'}h`, icon: '📊' },
   ];
 
   return (
-    <div className="fixed inset-0 bg-[#0A0A0A] flex items-center justify-center p-6">
-      <div className="text-center max-w-2xl">
+    <div className="fixed inset-0 bg-[#0A0A0A] flex items-center justify-center p-4 md:p-6">
+      <div className="text-center max-w-2xl w-full">
         {/* Success Icon */}
-        <div className="text-6xl mb-6">⚔️</div>
+        <div className="text-5xl md:text-6xl mb-4 md:mb-6">⚔️</div>
 
         {/* Main Message */}
-        <h1 className="text-5xl font-bold text-[#F9A825] mb-3">MISSION COMPLETE</h1>
-        <p className="text-2xl text-white mb-12">You showed up. That's the win.</p>
+        <h1 className="text-3xl md:text-5xl font-bold text-[#F9A825] mb-2 md:mb-3">MISSION COMPLETE</h1>
+        <p className="text-lg md:text-2xl text-white mb-8 md:mb-12">You showed up. That&apos;s the win.</p>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-4 gap-4 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-12">
           {stats.map((stat) => (
-            <div key={stat.label} className="bg-[#1E1E1E] p-6 rounded-lg border border-[#2A2A2A]">
-              {stat.icon && <div className="text-3xl mb-2">{stat.icon}</div>}
-              <p className="text-[#9E9E9E] text-sm mb-2">{stat.label}</p>
-              <p className="text-2xl font-bold text-white">{stat.value}</p>
+            <div key={stat.label} className="bg-[#1E1E1E] p-4 md:p-6 rounded-lg border border-[#2A2A2A]">
+              {stat.icon && <div className="text-2xl md:text-3xl mb-1 md:mb-2">{stat.icon}</div>}
+              <p className="text-[#9E9E9E] text-xs md:text-sm mb-1 md:mb-2">{stat.label}</p>
+              <p className="text-lg md:text-2xl font-bold text-white">{stat.value}</p>
             </div>
           ))}
         </div>
 
         {/* Rating Section */}
-        <div className="mb-12">
-          <p className="text-white font-semibold mb-4">How was this session?</p>
-          <div className="flex gap-3 justify-center">
+        <div className="mb-8 md:mb-12">
+          <p className="text-white font-semibold mb-4">
+            {ratingSaved ? 'Thanks for rating!' : 'How was this session?'}
+          </p>
+          <div className="flex gap-2 md:gap-3 justify-center flex-wrap">
             {ratings.map((rating) => (
               <button
                 key={rating.value}
-                onClick={() => setSelectedRating(rating.value)}
-                className={`flex flex-col items-center gap-2 px-6 py-4 rounded-lg transition-all duration-200 ${
+                onClick={() => handleRate(rating.value)}
+                disabled={ratingSaved}
+                className={`flex flex-col items-center gap-1 md:gap-2 px-4 md:px-6 py-3 md:py-4 rounded-lg transition-all duration-200 ${
                   selectedRating === rating.value
                     ? 'bg-[#F9A825] text-[#0A0A0A]'
                     : 'bg-[#1E1E1E] text-white border border-[#2A2A2A] hover:border-[#F9A825]'
-                }`}
+                } ${ratingSaved && selectedRating !== rating.value ? 'opacity-40' : ''}`}
               >
-                <span className="text-2xl">{rating.icon}</span>
-                <span className="text-sm font-semibold">{rating.label}</span>
+                <span className="text-xl md:text-2xl">{rating.icon}</span>
+                <span className="text-xs md:text-sm font-semibold">{rating.label}</span>
               </button>
             ))}
           </div>
@@ -74,15 +116,15 @@ export default function CompletePage() {
         {/* CTA Buttons */}
         <div className="flex flex-col gap-3">
           <button
-            onClick={handleBookAnother}
-            className="bg-[#F9A825] text-[#0A0A0A] font-bold py-4 px-12 rounded-lg hover:bg-[#F9B840] transition-all duration-200 text-lg"
+            onClick={() => router.push('/dashboard/book')}
+            className="bg-[#F9A825] text-[#0A0A0A] font-bold py-3 md:py-4 px-8 md:px-12 rounded-lg hover:bg-[#F9B840] transition-all duration-200 text-base md:text-lg"
           >
             Book Another Session
           </button>
 
           <button
-            onClick={handleBackToDashboard}
-            className="bg-[#1E1E1E] text-white font-bold py-4 px-12 rounded-lg border border-[#2A2A2A] hover:border-white transition-all duration-200 text-lg"
+            onClick={() => router.push('/dashboard')}
+            className="bg-[#1E1E1E] text-white font-bold py-3 md:py-4 px-8 md:px-12 rounded-lg border border-[#2A2A2A] hover:border-white transition-all duration-200 text-base md:text-lg"
           >
             Back to Dashboard
           </button>
