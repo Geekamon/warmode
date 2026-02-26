@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
@@ -27,90 +27,21 @@ export default function MatchingPage() {
   const [partnerSessions, setPartnerSessions] = useState(0);
   const [matchError, setMatchError] = useState<string | null>(null);
 
+  // Refs to avoid stale closures in callbacks/timers
+  const isMatchedRef = useRef(false);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Keep ref in sync
+  useEffect(() => { isMatchedRef.current = isMatched; }, [isMatched]);
+
+  // Cleanup on unmount
   useEffect(() => {
-    if (!user?.id) return;
-
-    async function findMatch() {
-      try {
-        // Call the match_session function in Supabase
-        const { data, error } = await supabase.rpc('match_session', {
-          p_user_id: user!.id,
-          p_duration: parseInt(duration),
-          p_mode: mode,
-          p_match_type: matchType,
-        });
-
-        if (error) throw error;
-
-        const matchedSessionId = data as string;
-        setSessionId(matchedSessionId);
-
-        // Check if we're the host (we created a new open session) or partner (joined existing)
-        const { data: session } = await supabase
-          .from('sessions')
-          .select('host_id, partner_id, status')
-          .eq('id', matchedSessionId)
-          .single();
-
-        if (session) {
-          const weAreHost = session.host_id === user!.id;
-          setIsHost(weAreHost);
-
-          // Save goal to session
-          if (goal) {
-            const goalField = weAreHost ? 'host_goal' : 'partner_goal';
-            await supabase
-              .from('sessions')
-              .update({ [goalField]: goal })
-              .eq('id', matchedSessionId);
-          }
-
-          if (session.status === 'matched' || session.partner_id) {
-            // Already matched — get partner info
-            const partnerId = weAreHost ? session.partner_id : session.host_id;
-            await fetchPartnerInfo(partnerId!);
-            setIsMatched(true);
-          } else {
-            // We created a new session, wait for someone to join
-            waitForMatch(matchedSessionId);
-          }
-        }
-      } catch (err) {
-        console.error('Matching error:', err);
-        setMatchError('Matching failed. Please try again.');
-      }
-    }
-
-    findMatch();
-  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Subscribe to session updates to detect when partner joins
-  function waitForMatch(sid: string) {
-    const channel = supabase
-      .channel(`match:${sid}`)
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'sessions', filter: `id=eq.${sid}` },
-        async (payload) => {
-          const updated = payload.new as { status: string; partner_id: string; host_id: string };
-          if (updated.status === 'matched' && updated.partner_id) {
-            const partnerId = isHost ? updated.partner_id : updated.host_id;
-            await fetchPartnerInfo(partnerId);
-            setIsMatched(true);
-            supabase.removeChannel(channel);
-          }
-        }
-      )
-      .subscribe();
-
-    // Timeout after 2 minutes
-    setTimeout(() => {
-      if (!isMatched) {
-        supabase.removeChannel(channel);
-        setMatchError('No partners available right now. Try again in a few minutes.');
-      }
-    }, 120000);
-  }
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   async function fetchPartnerInfo(partnerId: string) {
     const { data: partner } = await supabase
@@ -143,6 +74,124 @@ export default function MatchingPage() {
     }
   }
 
+  async function handleMatchFound(partnerId: string) {
+    if (isMatchedRef.current) return; // prevent double-trigger
+    isMatchedRef.current = true;
+    if (pollingRef.current) clearInterval(pollingRef.current);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    await fetchPartnerInfo(partnerId);
+    setIsMatched(true);
+  }
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    async function findMatch() {
+      try {
+        // Call the match_session function in Supabase
+        const { data, error } = await supabase.rpc('match_session', {
+          p_user_id: user!.id,
+          p_duration: parseInt(duration),
+          p_mode: mode,
+          p_match_type: matchType,
+        });
+
+        if (error) throw error;
+
+        const matchedSessionId = data as string;
+        setSessionId(matchedSessionId);
+
+        // Check if we're the host or partner
+        const { data: session } = await supabase
+          .from('sessions')
+          .select('host_id, partner_id, status')
+          .eq('id', matchedSessionId)
+          .single();
+
+        if (session) {
+          const weAreHost = session.host_id === user!.id;
+          setIsHost(weAreHost);
+
+          // Save goal to session
+          if (goal) {
+            const goalField = weAreHost ? 'host_goal' : 'partner_goal';
+            await supabase
+              .from('sessions')
+              .update({ [goalField]: goal })
+              .eq('id', matchedSessionId);
+          }
+
+          if (session.status === 'matched' && session.partner_id) {
+            // Already matched — get partner info immediately
+            const partnerId = weAreHost ? session.partner_id : session.host_id;
+            await handleMatchFound(partnerId!);
+          } else {
+            // We created a new open session — wait for partner to join
+            waitForMatch(matchedSessionId);
+          }
+        }
+      } catch (err) {
+        console.error('Matching error:', err);
+        setMatchError('Matching failed. Please try again.');
+      }
+    }
+
+    findMatch();
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Poll + Realtime to detect when partner joins
+  function waitForMatch(sid: string) {
+    // 1) Try Realtime subscription (only works if Realtime is enabled on sessions table)
+    const channel = supabase
+      .channel(`match:${sid}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'sessions', filter: `id=eq.${sid}` },
+        async (payload) => {
+          const updated = payload.new as { status: string; partner_id: string; host_id: string };
+          if (updated.status === 'matched' && updated.partner_id) {
+            supabase.removeChannel(channel);
+            // We're the host (we're waiting), so partner_id is our match
+            await handleMatchFound(updated.partner_id);
+          }
+        }
+      )
+      .subscribe();
+
+    // 2) Polling fallback — check every 3 seconds in case Realtime isn't enabled
+    pollingRef.current = setInterval(async () => {
+      if (isMatchedRef.current) {
+        if (pollingRef.current) clearInterval(pollingRef.current);
+        supabase.removeChannel(channel);
+        return;
+      }
+
+      try {
+        const { data: session } = await supabase
+          .from('sessions')
+          .select('status, partner_id')
+          .eq('id', sid)
+          .single();
+
+        if (session && session.status === 'matched' && session.partner_id) {
+          supabase.removeChannel(channel);
+          await handleMatchFound(session.partner_id);
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 3000);
+
+    // 3) Timeout after 2 minutes
+    timeoutRef.current = setTimeout(() => {
+      if (!isMatchedRef.current) {
+        supabase.removeChannel(channel);
+        if (pollingRef.current) clearInterval(pollingRef.current);
+        setMatchError('No partners available right now. Try again in a few minutes.');
+      }
+    }, 120000);
+  }
+
   const handleStartSession = () => {
     if (sessionId) {
       router.push(
@@ -152,6 +201,8 @@ export default function MatchingPage() {
   };
 
   const handleCancel = () => {
+    if (pollingRef.current) clearInterval(pollingRef.current);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     // Cancel the open session
     if (sessionId) {
       supabase
