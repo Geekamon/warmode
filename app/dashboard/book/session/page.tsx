@@ -209,9 +209,9 @@ export default function SessionPage() {
       )}
 
       {/* MIDDLE: Video Split View */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left Panel - Partner (Remote) */}
-        <div className="flex-1 border-r border-[#2A2A2A] relative bg-[#111111]">
+        <div className="flex-1 border-r md:border-r border-b md:border-b-0 border-[#2A2A2A] relative bg-[#111111] min-h-60 md:min-h-full">
           {remoteStream && mode === 'video' ? (
             <video
               ref={remoteVideoRef}
@@ -264,7 +264,7 @@ export default function SessionPage() {
         </div>
 
         {/* Right Panel - You (Local) */}
-        <div className="flex-1 relative bg-[#0A0A0A]">
+        <div className="flex-1 relative bg-[#0A0A0A] min-h-60 md:min-h-full">
           {localStream && mode === 'video' && !cameraOff ? (
             <video
               ref={localVideoRef}
@@ -321,9 +321,9 @@ export default function SessionPage() {
           </div>
 
           {/* Controls and Timer */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
             {/* Control Buttons */}
-            <div className="flex gap-4">
+            <div className="flex gap-2 md:gap-4 flex-wrap justify-center md:justify-start">
               {/* Mute Button */}
               <button
                 onClick={toggleMute}
@@ -360,7 +360,7 @@ export default function SessionPage() {
 
             {/* Timer */}
             <div className="text-center">
-              <div className="font-mono text-6xl font-bold text-[#F9A825] mb-2">
+              <div className="font-mono text-3xl md:text-6xl font-bold text-[#F9A825] mb-2">
                 {formatTime(timeRemaining)}
               </div>
               <p className="text-[#9E9E9E] text-sm">
@@ -371,7 +371,7 @@ export default function SessionPage() {
             {/* End Session Button */}
             <button
               onClick={handleEndSession}
-              className="bg-[#D32F2F] text-white font-bold py-3 px-8 rounded-lg hover:bg-[#B71C1C] transition-all duration-200 text-lg"
+              className="bg-[#D32F2F] text-white font-bold py-3 px-6 md:px-8 rounded-lg hover:bg-[#B71C1C] transition-all duration-200 text-sm md:text-lg whitespace-nowrap"
             >
               END SESSION
             </button>

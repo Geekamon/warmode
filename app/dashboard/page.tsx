@@ -52,11 +52,11 @@ const recentSessions = [
 
 export default function DashboardPage() {
   return (
-    <div className="bg-[#0A0A0A] min-h-screen p-8">
+    <div className="bg-[#0A0A0A] min-h-screen p-4 md:p-8">
       {/* HEADER */}
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Dashboard</h1>
           <p className="text-[#9E9E9E]">Good morning, Adaeze</p>
         </div>
         <Link
@@ -69,7 +69,7 @@ export default function DashboardPage() {
       </div>
 
       {/* STAT CARDS - 4 in a row */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
         {/* Day Streak */}
         <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
           <div className="flex items-start justify-between mb-4">
@@ -112,7 +112,7 @@ export default function DashboardPage() {
       </div>
 
       {/* 2x2 GRID */}
-      <div className="grid grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8">
         {/* NEXT SESSION CARD */}
         <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6">
           <h2 className="text-lg font-semibold text-white mb-6">Next Session</h2>

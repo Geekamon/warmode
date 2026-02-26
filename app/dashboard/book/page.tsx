@@ -61,9 +61,9 @@ export default function BookPage() {
         </div>
 
         {/* Main Content - Two Columns */}
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* LEFT COLUMN */}
-          <div className="col-span-2 space-y-8">
+          <div className="col-span-1 lg:col-span-2 space-y-8">
             {/* Duration Picker */}
             <section>
               <h2 className="text-lg font-semibold text-white mb-4">Session Duration</h2>
@@ -169,7 +169,7 @@ export default function BookPage() {
 
           {/* RIGHT COLUMN - Summary Panel */}
           <div className="col-span-1">
-            <div className="sticky top-6 p-6 rounded-lg bg-[#1E1E1E] border border-[#2A2A2A]">
+            <div className="sticky top-6 p-6 rounded-lg bg-[#1E1E1E] border border-[#2A2A2A] lg:top-6 top-auto">
               <h3 className="text-lg font-bold text-white mb-6">Session Summary</h3>
 
               <div className="space-y-6 mb-6">

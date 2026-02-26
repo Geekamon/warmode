@@ -31,7 +31,7 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 text-center">
         <div className="space-y-8">
           <div>
-            <h1 className="text-7xl md:text-8xl font-black mb-4" style={{ color: '#F9A825', letterSpacing: '-0.02em' }}>
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-4" style={{ color: '#F9A825', letterSpacing: '-0.02em' }}>
               WARMODE
             </h1>
             <p className="text-xl md:text-2xl font-bold text-white mb-2">
@@ -59,17 +59,17 @@ export default function LandingPage() {
             </a>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 pt-12 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-12 max-w-2xl mx-auto">
             <div>
-              <p style={{ color: '#F9A825' }} className="text-3xl font-bold">1,247</p>
+              <p style={{ color: '#F9A825' }} className="text-xl md:text-3xl font-bold">1,247</p>
               <p className="text-gray-400 text-sm">warriors online now</p>
             </div>
             <div>
-              <p style={{ color: '#F9A825' }} className="text-3xl font-bold">18,000+</p>
+              <p style={{ color: '#F9A825' }} className="text-xl md:text-3xl font-bold">18,000+</p>
               <p className="text-gray-400 text-sm">warriors total</p>
             </div>
             <div>
-              <p style={{ color: '#F9A825' }} className="text-3xl font-bold">142K</p>
+              <p style={{ color: '#F9A825' }} className="text-xl md:text-3xl font-bold">142K</p>
               <p className="text-gray-400 text-sm">sessions completed</p>
             </div>
           </div>
@@ -79,7 +79,7 @@ export default function LandingPage() {
       {/* How It Works Section */}
       <section id="how-it-works" style={{ backgroundColor: '#111111', borderColor: '#2A2A2A' }} className="py-20 md:py-32 border-t">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-5xl font-black text-center text-white mb-16">How It Works</h2>
+          <h2 className="text-3xl md:text-5xl font-black text-center text-white mb-16">How It Works</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
@@ -101,7 +101,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <section id="features" className="py-20 md:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-5xl font-black text-center text-white mb-16">Why Warriors Choose WarMode</h2>
+          <h2 className="text-3xl md:text-5xl font-black text-center text-white mb-16">Why Warriors Choose WarMode</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {[
@@ -143,9 +143,9 @@ export default function LandingPage() {
       {/* Pricing Section */}
       <section id="pricing" style={{ backgroundColor: '#111111', borderColor: '#2A2A2A' }} className="py-20 md:py-32 border-t">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-5xl font-black text-center text-white mb-16">Simple Pricing for Warriors</h2>
+          <h2 className="text-3xl md:text-5xl font-black text-center text-white mb-16">Simple Pricing for Warriors</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 name: 'Free',
@@ -242,7 +242,7 @@ export default function LandingPage() {
       {/* Final CTA Section */}
       <section className="py-20 md:py-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-5xl md:text-6xl font-black text-white mb-6">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-6">
             Ready to activate war mode?
           </h2>
           <p className="text-xl text-gray-400 mb-12">
