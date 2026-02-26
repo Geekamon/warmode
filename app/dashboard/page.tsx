@@ -367,7 +367,12 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Dashboard</h1>
           <p className="text-[#9E9E9E]">
-            Good morning, {loadingProfile ? '...' : profile?.full_name || 'Warrior'}
+            {(() => {
+              const hour = new Date().getHours();
+              if (hour < 12) return 'Good morning';
+              if (hour < 17) return 'Good afternoon';
+              return 'Good evening';
+            })()}, {loadingProfile ? '...' : profile?.full_name || 'Warrior'}
           </p>
         </div>
         <Link
@@ -486,8 +491,16 @@ export default function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-[#9E9E9E]">No sessions yet</div>
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <span className="text-4xl mb-4">⚔️</span>
+              <p className="text-white font-semibold mb-2">No upcoming sessions</p>
+              <p className="text-[#9E9E9E] text-sm mb-6">Book a session to find an accountability partner</p>
+              <Link
+                href="/dashboard/book"
+                className="bg-[#F9A825] hover:bg-[#E89B1F] text-[#0A0A0A] font-semibold px-6 py-3 rounded-lg transition-all duration-200"
+              >
+                Book a Session
+              </Link>
             </div>
           )}
         </div>
@@ -623,8 +636,14 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-[#9E9E9E]">No sessions yet</div>
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <p className="text-[#9E9E9E] mb-4">No completed sessions yet</p>
+              <Link
+                href="/dashboard/book"
+                className="text-[#F9A825] font-semibold hover:underline text-sm"
+              >
+                Start your first session →
+              </Link>
             </div>
           )}
         </div>

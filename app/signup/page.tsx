@@ -16,6 +16,22 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const getPasswordStrength = (password: string): { level: number; label: string; color: string } => {
+    if (!password) return { level: 0, label: '', color: '#2A2A2A' };
+    let score = 0;
+    if (password.length >= 6) score++;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    if (score <= 1) return { level: 1, label: 'Weak', color: '#D32F2F' };
+    if (score <= 2) return { level: 2, label: 'Fair', color: '#FF9800' };
+    if (score <= 3) return { level: 3, label: 'Good', color: '#F9A825' };
+    return { level: 4, label: 'Strong', color: '#4CAF50' };
+  };
+
+  const passwordStrength = getPasswordStrength(formData.password);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -204,6 +220,24 @@ export default function SignupPage() {
               onFocus={(e) => (e.currentTarget.style.borderColor = '#F9A825')}
               onBlur={(e) => (e.currentTarget.style.borderColor = '#2A2A2A')}
             />
+            {formData.password && (
+              <div className="mt-2">
+                <div className="flex gap-1 mb-1">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="h-1 flex-1 rounded-full transition-all duration-300"
+                      style={{
+                        backgroundColor: i <= passwordStrength.level ? passwordStrength.color : '#2A2A2A',
+                      }}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs" style={{ color: passwordStrength.color }}>
+                  {passwordStrength.label}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Submit Button */}

@@ -17,13 +17,21 @@ export default function LandingPage() {
             <a href="#features" className="text-gray-300 hover:text-white transition">Features</a>
             <a href="#pricing" className="text-gray-300 hover:text-white transition">Pricing</a>
           </div>
-          <Link
-            href="/signup"
-            style={{ backgroundColor: '#F9A825' }}
-            className="px-6 py-2 font-bold text-black rounded-lg hover:opacity-90 transition"
-          >
-            Sign Up
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/login"
+              className="px-6 py-2 font-bold text-white rounded-lg hover:text-[#F9A825] transition"
+            >
+              Login
+            </Link>
+            <Link
+              href="/signup"
+              style={{ backgroundColor: '#F9A825' }}
+              className="px-6 py-2 font-bold text-black rounded-lg hover:opacity-90 transition"
+            >
+              Sign Up
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -269,25 +277,23 @@ export default function LandingPage() {
             <div>
               <h4 className="text-white font-bold mb-4">Product</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition">Features</a></li>
-                <li><a href="#" className="hover:text-white transition">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition">Blog</a></li>
+                <li><a href="#features" className="hover:text-white transition">Features</a></li>
+                <li><a href="#pricing" className="hover:text-white transition">Pricing</a></li>
+                <li><a href="#how-it-works" className="hover:text-white transition">How It Works</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-4">Company</h4>
+              <h4 className="text-white font-bold mb-4">Account</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition">About</a></li>
-                <li><a href="#" className="hover:text-white transition">Community</a></li>
-                <li><a href="#" className="hover:text-white transition">Contact</a></li>
+                <li><Link href="/signup" className="hover:text-white transition">Sign Up</Link></li>
+                <li><Link href="/login" className="hover:text-white transition">Login</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-4">Legal</h4>
+              <h4 className="text-white font-bold mb-4">Connect</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition">Terms</a></li>
-                <li><a href="#" className="hover:text-white transition">Security</a></li>
+                <li><a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Twitter</a></li>
+                <li><a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Discord</a></li>
               </ul>
             </div>
           </div>
@@ -295,9 +301,8 @@ export default function LandingPage() {
           <div style={{ borderTop: '1px solid #2A2A2A' }} className="pt-8 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
             <p>&copy; 2026 WarMode. All rights reserved. Go to war with your goals.</p>
             <div className="flex gap-6 mt-4 md:mt-0">
-              <a href="#" className="hover:text-white transition">Twitter</a>
-              <a href="#" className="hover:text-white transition">LinkedIn</a>
-              <a href="#" className="hover:text-white transition">Discord</a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Twitter</a>
+              <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Discord</a>
             </div>
           </div>
         </div>

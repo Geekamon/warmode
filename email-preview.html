@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WarMode Email Templates Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #111; font-family: 'Helvetica Neue', Arial, sans-serif; color: #fff; padding: 40px 20px; }
+    h1 { text-align: center; color: #F9A825; font-size: 32px; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #9E9E9E; margin-bottom: 40px; font-size: 14px; }
+    .tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+    .tab { padding: 10px 20px; border-radius: 8px; border: 1px solid #2A2A2A; background: #1E1E1E; color: #9E9E9E; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    .tab:hover { border-color: #F9A825; color: #fff; }
+    .tab.active { background: #F9A825; color: #0A0A0A; border-color: #F9A825; font-weight: bold; }
+    .preview-container { max-width: 620px; margin: 0 auto; }
+    .subject-line { background: #1E1E1E; border: 1px solid #2A2A2A; border-radius: 8px 8px 0 0; padding: 16px 24px; }
+    .subject-label { color: #9E9E9E; font-size: 12px; margin-bottom: 4px; }
+    .subject-text { color: #fff; font-size: 16px; font-weight: 600; }
+    .email-frame { border: 1px solid #2A2A2A; border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; }
+    .email-frame iframe { width: 100%; height: 580px; border: none; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>⚔️ WarMode Email Templates</h1>
+  <p class="subtitle">Preview of all 5 notification emails</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showEmail(0, this)">1. Welcome</button>
+    <button class="tab" onclick="showEmail(1, this)">2. Matched</button>
+    <button class="tab" onclick="showEmail(2, this)">3. Reminder</button>
+    <button class="tab" onclick="showEmail(3, this)">4. Complete</button>
+    <button class="tab" onclick="showEmail(4, this)">5. Streak Broken</button>
+  </div>
+
+  <div class="preview-container">
+    <div class="subject-line">
+      <div class="subject-label">Subject:</div>
+      <div class="subject-text" id="subjectText"></div>
+    </div>
+    <div class="email-frame">
+      <iframe id="emailFrame"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const APP_URL = 'https://warmode-drab.vercel.app';
+
+    const baseStyle = `font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #0A0A0A; color: #FFFFFF; padding: 40px 20px;`;
+    const buttonStyle = `display: inline-block; background-color: #F9A825; color: #0A0A0A; font-weight: bold; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-size: 16px;`;
+    const cardStyle = `background-color: #1E1E1E; border: 1px solid #2A2A2A; border-radius: 12px; padding: 32px; max-width: 520px; margin: 0 auto;`;
+
+    function wrap(content) {
+      return `<div style="${baseStyle}"><div style="${cardStyle}"><div style="text-align: center; margin-bottom: 24px;"><span style="font-size: 28px; font-weight: bold; color: #F9A825;">⚔️ WARMODE</span></div>${content}<div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid #2A2A2A;"><p style="color: #9E9E9E; font-size: 12px; margin: 0;">WarMode — Accountability for the Nigerian hustle</p></div></div></div>`;
+    }
+
+    const emails = [
+      {
+        subject: '⚔️ Welcome to WarMode, Warrior!',
+        html: wrap(`
+          <h2 style="color: #FFFFFF; margin: 0 0 16px;">Welcome, Sky!</h2>
+          <p style="color: #CCCCCC; line-height: 1.6;">You just joined the most serious accountability community in Nigeria. No excuses. No distractions. Just work.</p>
+          <p style="color: #CCCCCC; line-height: 1.6;">Book your first session now and start building your streak.</p>
+          <div style="text-align: center; margin: 28px 0;"><a href="#" style="${buttonStyle}">Book Your First Session</a></div>
+          <p style="color: #9E9E9E; font-size: 14px;">Tip: Consistency beats motivation. Even 25 minutes counts.</p>
+        `)
+      },
+      {
+        subject: '🤝 Matched! Your 50-min session is set',
+        html: wrap(`
+          <h2 style="color: #FFFFFF; margin: 0 0 16px;">You're matched, Sky!</h2>
+          <p style="color: #CCCCCC; line-height: 1.6;">Your accountability partner is ready. Don't keep them waiting.</p>
+          <div style="background: #0A0A0A; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <table style="width: 100%; color: #CCCCCC;">
+              <tr><td style="padding: 8px 0; color: #9E9E9E;">Partner</td><td style="padding: 8px 0; text-align: right; font-weight: bold; color: #FFFFFF;">Chidi Okonkwo</td></tr>
+              <tr><td style="padding: 8px 0; color: #9E9E9E;">Duration</td><td style="padding: 8px 0; text-align: right; font-weight: bold; color: #FFFFFF;">50 minutes</td></tr>
+              <tr><td style="padding: 8px 0; color: #9E9E9E;">Time</td><td style="padding: 8px 0; text-align: right; font-weight: bold; color: #FFFFFF;">26 Feb 2026, 2:30 PM</td></tr>
+            </table>
+          </div>
+          <div style="text-align: center; margin: 28px 0;"><a href="#" style="${buttonStyle}">Go to Dashboard</a></div>
+        `)
+      },
+      {
+        subject: '⏰ Your session starts in 15 minutes!',
+        html: wrap(`
+          <h2 style="color: #FFFFFF; margin: 0 0 16px;">Heads up, Sky!</h2>
+          <p style="color: #CCCCCC; line-height: 1.6;">Your 50-minute session with <strong>Chidi Okonkwo</strong> starts in 15 minutes. Get your workspace ready and your goals clear.</p>
+          <div style="text-align: center; margin: 28px 0;"><a href="#" style="${buttonStyle}">Join Session</a></div>
+          <p style="color: #9E9E9E; font-size: 14px;">Remember: showing up is 90% of the battle.</p>
+        `)
+      },
+      {
+        subject: '⚔️ Mission Complete! 8-day streak!',
+        html: wrap(`
+          <h2 style="color: #F9A825; margin: 0 0 16px; text-align: center;">MISSION COMPLETE</h2>
+          <p style="color: #CCCCCC; line-height: 1.6; text-align: center;">50 minutes of pure focus. Well done, Sky.</p>
+          <table style="width: 100%; margin: 24px 0; text-align: center;">
+            <tr>
+              <td style="background: #0A0A0A; border-radius: 8px; padding: 16px; width: 50%;">
+                <p style="color: #F9A825; font-size: 28px; font-weight: bold; margin: 0;">8</p>
+                <p style="color: #9E9E9E; font-size: 12px; margin: 4px 0 0;">Day Streak</p>
+              </td>
+              <td style="width: 12px;"></td>
+              <td style="background: #0A0A0A; border-radius: 8px; padding: 16px; width: 50%;">
+                <p style="color: #4CAF50; font-size: 28px; font-weight: bold; margin: 0;">48</p>
+                <p style="color: #9E9E9E; font-size: 12px; margin: 4px 0 0;">Total Sessions</p>
+              </td>
+            </tr>
+          </table>
+          <div style="text-align: center; margin: 28px 0;"><a href="#" style="${buttonStyle}">Book Next Session</a></div>
+        `)
+      },
+      {
+        subject: "💔 Your 8-day streak ended. Come back!",
+        html: wrap(`
+          <h2 style="color: #FFFFFF; margin: 0 0 16px;">Don't let up, Sky!</h2>
+          <p style="color: #CCCCCC; line-height: 1.6;">Your 8-day streak just ended. But every warrior falls — what matters is getting back up.</p>
+          <p style="color: #CCCCCC; line-height: 1.6;">One session. That's all it takes to start a new streak.</p>
+          <div style="text-align: center; margin: 28px 0;"><a href="#" style="${buttonStyle}">Start a New Streak</a></div>
+        `)
+      }
+    ];
+
+    function showEmail(index, btn) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.getElementById('subjectText').textContent = emails[index].subject;
+
+      const iframe = document.getElementById('emailFrame');
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;">' + emails[index].html + '</body></html>');
+      doc.close();
+    }
+
+    // Show first email on load
+    showEmail(0, document.querySelector('.tab'));
+  </script>
+</body>
+</html>

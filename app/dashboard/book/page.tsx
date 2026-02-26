@@ -39,9 +39,11 @@ export default function BookPage() {
   const [matchPreference, setMatchPreference] = useState('anyone');
   const [selectedDate, setSelectedDate] = useState('today');
   const [selectedTime, setSelectedTime] = useState('Now');
+  const [goal, setGoal] = useState('');
 
   const handleActivateWar = () => {
-    router.push(`/dashboard/book/matching?duration=${duration}&mode=${sessionMode}&match=${matchPreference}`);
+    const goalParam = goal.trim() ? `&goal=${encodeURIComponent(goal.trim())}` : '';
+    router.push(`/dashboard/book/matching?duration=${duration}&mode=${sessionMode}&match=${matchPreference}${goalParam}`);
   };
 
   const dateOptions = [
@@ -126,6 +128,20 @@ export default function BookPage() {
               </div>
             </section>
 
+            {/* Session Goal */}
+            <section>
+              <h2 className="text-lg font-semibold text-white mb-4">What are you working on?</h2>
+              <input
+                type="text"
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
+                placeholder="e.g. Finishing my portfolio website, Studying for exams..."
+                maxLength={120}
+                className="w-full p-4 rounded-lg border-2 border-[#2A2A2A] bg-[#1E1E1E] text-white placeholder-[#616161] focus:border-[#F9A825] focus:outline-none transition-all duration-200"
+              />
+              <p className="text-xs text-[#616161] mt-2">{goal.length}/120 — Your partner will see this</p>
+            </section>
+
             {/* Time Selection */}
             <section>
               <h2 className="text-lg font-semibold text-white mb-4">Select Time</h2>
@@ -160,7 +176,6 @@ export default function BookPage() {
                     }`}
                   >
                     <div>{time}</div>
-                    <div className="text-xs text-[#9E9E9E] mt-1">3 ready</div>
                   </button>
                 ))}
               </div>
@@ -199,6 +214,16 @@ export default function BookPage() {
                     {MATCH_PREFERENCES.find((p) => p.value === matchPreference)?.label}
                   </p>
                 </div>
+
+                {/* Goal Summary */}
+                {goal.trim() && (
+                  <div>
+                    <p className="text-[#9E9E9E] text-sm mb-2">Goal</p>
+                    <p className="text-sm font-medium text-white break-words">
+                      {goal.trim()}
+                    </p>
+                  </div>
+                )}
 
                 {/* Time Summary */}
                 <div>
