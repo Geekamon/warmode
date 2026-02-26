@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { StaggerContainer, StaggerItem, FadeIn } from '@/components/page-transition';
+import { SkeletonCard, SkeletonSessionCard, SkeletonChart, SkeletonList } from '@/components/skeleton';
 
 interface Profile {
   id: string;
@@ -385,63 +387,58 @@ export default function DashboardPage() {
       </div>
 
       {/* STAT CARDS - 4 in a row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-        {/* Day Streak */}
-        <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
-          <div className="flex items-start justify-between mb-4">
-            <span className="text-2xl">🔥</span>
-          </div>
-          <p className="text-[#9E9E9E] text-sm mb-1">Day Streak</p>
-          <p className="text-3xl font-bold text-[#F9A825]">
-            {loadingProfile ? '-' : profile?.streak_current || 0}
-          </p>
-          <p className="text-xs text-[#616161] mt-3">Days in a row</p>
+      {loadingProfile ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+          <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
         </div>
-
-        {/* Total Sessions */}
-        <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
-          <div className="flex items-start justify-between mb-4">
-            <span className="text-2xl">⚔️</span>
-          </div>
-          <p className="text-[#9E9E9E] text-sm mb-1">Total Sessions</p>
-          <p className="text-3xl font-bold text-white">
-            {loadingProfile ? '-' : profile?.total_sessions || 0}
-          </p>
-          <p className="text-xs text-[#616161] mt-3">All time</p>
-        </div>
-
-        {/* Hours Focused */}
-        <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
-          <div className="flex items-start justify-between mb-4">
-            <span className="text-2xl">⏱️</span>
-          </div>
-          <p className="text-[#9E9E9E] text-sm mb-1">Hours Focused</p>
-          <p className="text-3xl font-bold text-white">
-            {loadingProfile ? '-' : (profile?.total_hours || 0).toFixed(1)}h
-          </p>
-          <p className="text-xs text-[#616161] mt-3">All time</p>
-        </div>
-
-        {/* Partners Met */}
-        <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
-          <div className="flex items-start justify-between mb-4">
-            <span className="text-2xl">🤝</span>
-          </div>
-          <p className="text-[#9E9E9E] text-sm mb-1">Partners Met</p>
-          <p className="text-3xl font-bold text-white">
-            {loadingCommunity ? '-' : partnersCount}
-          </p>
-          <p className="text-xs text-[#616161] mt-3">Unique warriors</p>
-        </div>
-      </div>
+      ) : (
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+          <StaggerItem>
+            <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
+              <div className="flex items-start justify-between mb-4"><span className="text-2xl">🔥</span></div>
+              <p className="text-[#9E9E9E] text-sm mb-1">Day Streak</p>
+              <p className="text-3xl font-bold text-[#F9A825]">{profile?.streak_current || 0}</p>
+              <p className="text-xs text-[#616161] mt-3">Days in a row</p>
+            </div>
+          </StaggerItem>
+          <StaggerItem>
+            <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
+              <div className="flex items-start justify-between mb-4"><span className="text-2xl">⚔️</span></div>
+              <p className="text-[#9E9E9E] text-sm mb-1">Total Sessions</p>
+              <p className="text-3xl font-bold text-white">{profile?.total_sessions || 0}</p>
+              <p className="text-xs text-[#616161] mt-3">All time</p>
+            </div>
+          </StaggerItem>
+          <StaggerItem>
+            <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
+              <div className="flex items-start justify-between mb-4"><span className="text-2xl">⏱️</span></div>
+              <p className="text-[#9E9E9E] text-sm mb-1">Hours Focused</p>
+              <p className="text-3xl font-bold text-white">{(profile?.total_hours || 0).toFixed(1)}h</p>
+              <p className="text-xs text-[#616161] mt-3">All time</p>
+            </div>
+          </StaggerItem>
+          <StaggerItem>
+            <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
+              <div className="flex items-start justify-between mb-4"><span className="text-2xl">🤝</span></div>
+              <p className="text-[#9E9E9E] text-sm mb-1">Partners Met</p>
+              <p className="text-3xl font-bold text-white">{loadingCommunity ? '-' : partnersCount}</p>
+              <p className="text-xs text-[#616161] mt-3">Unique warriors</p>
+            </div>
+          </StaggerItem>
+        </StaggerContainer>
+      )}
 
       {/* 2x2 GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8">
         {/* NEXT SESSION CARD */}
+        {loadingNextSession ? (
+          <SkeletonSessionCard />
+        ) : (
+        <FadeIn delay={0.15}>
         <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6">
           <h2 className="text-lg font-semibold text-white mb-6">Next Session</h2>
 
-          {loadingNextSession ? (
+          {false ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-[#9E9E9E]">Loading...</div>
             </div>
@@ -504,16 +501,18 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+        </FadeIn>
+        )}
 
         {/* THIS WEEK CHART */}
+        {loadingWeekData ? (
+          <SkeletonChart />
+        ) : (
+        <FadeIn delay={0.2}>
         <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6">
           <h2 className="text-lg font-semibold text-white mb-6">This Week</h2>
 
-          {loadingWeekData ? (
-            <div className="flex items-center justify-center h-72">
-              <div className="text-[#9E9E9E]">Loading...</div>
-            </div>
-          ) : (
+          {(
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={weekData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" />
@@ -541,16 +540,18 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           )}
         </div>
+        </FadeIn>
+        )}
 
         {/* COMMUNITY CARD */}
+        {loadingCommunity ? (
+          <SkeletonList rows={3} />
+        ) : (
+        <FadeIn delay={0.25}>
         <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6">
           <h2 className="text-lg font-semibold text-white mb-6">Community</h2>
 
-          {loadingCommunity ? (
-            <div className="flex items-center justify-center h-96">
-              <div className="text-[#9E9E9E]">Loading...</div>
-            </div>
-          ) : (
+          {(
             <div className="space-y-6">
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4 pb-6 border-b border-[#2A2A2A]">
@@ -602,18 +603,20 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+        </FadeIn>
+        )}
 
         {/* RECENT SESSIONS */}
+        {loadingRecentSessions ? (
+          <SkeletonList rows={4} />
+        ) : (
+        <FadeIn delay={0.3}>
         <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6">
           <h2 className="text-lg font-semibold text-white mb-6">
             Recent Sessions
           </h2>
 
-          {loadingRecentSessions ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-[#9E9E9E]">Loading...</div>
-            </div>
-          ) : recentSessions.length > 0 ? (
+          {recentSessions.length > 0 ? (
             <div className="space-y-4">
               {recentSessions.map((session) => (
                 <div
@@ -647,6 +650,8 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+        </FadeIn>
+        )}
       </div>
     </div>
   );

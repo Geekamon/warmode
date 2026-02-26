@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { motion } from 'framer-motion';
 
 export default function CompletePage() {
   const router = useRouter();
@@ -123,25 +124,66 @@ export default function CompletePage() {
     <div className="fixed inset-0 bg-[#0A0A0A] flex items-center justify-center p-4 md:p-6">
       <div className="text-center max-w-2xl w-full">
         {/* Success Icon */}
-        <div className="text-5xl md:text-6xl mb-4 md:mb-6">⚔️</div>
+        <motion.div
+          className="text-5xl md:text-6xl mb-4 md:mb-6"
+          initial={{ scale: 0, rotate: -45 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ duration: 0.6, type: 'spring', stiffness: 200 }}
+        >
+          ⚔️
+        </motion.div>
 
         {/* Main Message */}
-        <h1 className="text-3xl md:text-5xl font-bold text-[#F9A825] mb-2 md:mb-3">MISSION COMPLETE</h1>
-        <p className="text-lg md:text-2xl text-white mb-8 md:mb-12">You showed up. That&apos;s the win.</p>
+        <motion.h1
+          className="text-3xl md:text-5xl font-bold text-[#F9A825] mb-2 md:mb-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          MISSION COMPLETE
+        </motion.h1>
+        <motion.p
+          className="text-lg md:text-2xl text-white mb-8 md:mb-12"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          You showed up. That&apos;s the win.
+        </motion.p>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-12">
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-12"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.08, delayChildren: 0.6 } },
+          }}
+        >
           {stats.map((stat) => (
-            <div key={stat.label} className="bg-[#1E1E1E] p-4 md:p-6 rounded-lg border border-[#2A2A2A]">
+            <motion.div
+              key={stat.label}
+              className="bg-[#1E1E1E] p-4 md:p-6 rounded-lg border border-[#2A2A2A]"
+              variants={{
+                hidden: { opacity: 0, y: 16 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
+              }}
+            >
               {stat.icon && <div className="text-2xl md:text-3xl mb-1 md:mb-2">{stat.icon}</div>}
               <p className="text-[#9E9E9E] text-xs md:text-sm mb-1 md:mb-2">{stat.label}</p>
               <p className="text-lg md:text-2xl font-bold text-white">{stat.value}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Rating Section */}
-        <div className="mb-8 md:mb-12">
+        <motion.div
+          className="mb-8 md:mb-12"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+        >
           <p className="text-white font-semibold mb-4">
             {ratingSaved ? 'Thanks for rating!' : 'How was this session?'}
           </p>
@@ -162,7 +204,7 @@ export default function CompletePage() {
               </button>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Favorite Partner */}
         {partnerId && partnerName && (
@@ -182,7 +224,12 @@ export default function CompletePage() {
         )}
 
         {/* CTA Buttons */}
-        <div className="flex flex-col gap-3">
+        <motion.div
+          className="flex flex-col gap-3"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.1 }}
+        >
           <button
             onClick={() => router.push('/dashboard/book')}
             className="bg-[#F9A825] text-[#0A0A0A] font-bold py-3 md:py-4 px-8 md:px-12 rounded-lg hover:bg-[#F9B840] transition-all duration-200 text-base md:text-lg"
@@ -196,7 +243,7 @@ export default function CompletePage() {
           >
             Back to Dashboard
           </button>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

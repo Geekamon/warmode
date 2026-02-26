@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { StaggerContainer, StaggerItem } from '@/components/page-transition';
+import { SkeletonCard } from '@/components/skeleton';
 import {
   BarChart,
   Bar,
@@ -168,8 +170,14 @@ export default function StatsPage() {
   }, [userId]);
   if (loading) {
     return (
-      <div className="bg-[#0A0A0A] min-h-screen p-8 flex items-center justify-center">
-        <p className="text-[#9E9E9E]">Loading statistics...</p>
+      <div className="bg-[#0A0A0A] min-h-screen p-8">
+        <div className="mb-8">
+          <div className="w-40 h-8 bg-[#2A2A2A] rounded mb-2 animate-pulse" />
+          <div className="w-64 h-4 bg-[#2A2A2A] rounded animate-pulse" />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+          <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
+        </div>
       </div>
     );
   }
@@ -183,58 +191,43 @@ export default function StatsPage() {
       </div>
 
       {/* 5 STAT CARDS IN A ROW */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        {/* Total Sessions */}
-        <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
-          <div className="flex items-start justify-between mb-4">
-            <span className="text-2xl">⚔️</span>
+      <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+        <StaggerItem>
+          <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
+            <div className="flex items-start justify-between mb-4"><span className="text-2xl">⚔️</span></div>
+            <p className="text-[#9E9E9E] text-xs mb-2">Total Sessions</p>
+            <p className="text-3xl font-bold text-white">{profile?.total_sessions || 0}</p>
           </div>
-          <p className="text-[#9E9E9E] text-xs mb-2">Total Sessions</p>
-          <p className="text-3xl font-bold text-white">
-            {profile?.total_sessions || 0}
-          </p>
-        </div>
-
-        {/* Hours Focused */}
-        <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
-          <div className="flex items-start justify-between mb-4">
-            <span className="text-2xl">⏱️</span>
+        </StaggerItem>
+        <StaggerItem>
+          <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
+            <div className="flex items-start justify-between mb-4"><span className="text-2xl">⏱️</span></div>
+            <p className="text-[#9E9E9E] text-xs mb-2">Hours Focused</p>
+            <p className="text-3xl font-bold text-white">{profile?.total_hours || 0}h</p>
           </div>
-          <p className="text-[#9E9E9E] text-xs mb-2">Hours Focused</p>
-          <p className="text-3xl font-bold text-white">
-            {profile?.total_hours || 0}h
-          </p>
-        </div>
-
-        {/* Best Streak */}
-        <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
-          <div className="flex items-start justify-between mb-4">
-            <span className="text-2xl">🔥</span>
+        </StaggerItem>
+        <StaggerItem>
+          <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
+            <div className="flex items-start justify-between mb-4"><span className="text-2xl">🔥</span></div>
+            <p className="text-[#9E9E9E] text-xs mb-2">Best Streak</p>
+            <p className="text-3xl font-bold text-[#F9A825]">{profile?.streak_best || 0} days</p>
           </div>
-          <p className="text-[#9E9E9E] text-xs mb-2">Best Streak</p>
-          <p className="text-3xl font-bold text-[#F9A825]">
-            {profile?.streak_best || 0} days
-          </p>
-        </div>
-
-        {/* Unique Partners */}
-        <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
-          <div className="flex items-start justify-between mb-4">
-            <span className="text-2xl">🤝</span>
+        </StaggerItem>
+        <StaggerItem>
+          <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
+            <div className="flex items-start justify-between mb-4"><span className="text-2xl">🤝</span></div>
+            <p className="text-[#9E9E9E] text-xs mb-2">Unique Partners</p>
+            <p className="text-3xl font-bold text-white">{uniquePartners}</p>
           </div>
-          <p className="text-[#9E9E9E] text-xs mb-2">Unique Partners</p>
-          <p className="text-3xl font-bold text-white">{uniquePartners}</p>
-        </div>
-
-        {/* Completion Rate */}
-        <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
-          <div className="flex items-start justify-between mb-4">
-            <span className="text-2xl">⭐</span>
+        </StaggerItem>
+        <StaggerItem>
+          <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg p-6 hover:bg-[#252525] transition-colors">
+            <div className="flex items-start justify-between mb-4"><span className="text-2xl">⭐</span></div>
+            <p className="text-[#9E9E9E] text-xs mb-2">Completion Rate</p>
+            <p className="text-3xl font-bold text-[#4CAF50]">{avgCompletionRate}%</p>
           </div>
-          <p className="text-[#9E9E9E] text-xs mb-2">Completion Rate</p>
-          <p className="text-3xl font-bold text-[#4CAF50]">{avgCompletionRate}%</p>
-        </div>
-      </div>
+        </StaggerItem>
+      </StaggerContainer>
 
       {/* 2 COLUMN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

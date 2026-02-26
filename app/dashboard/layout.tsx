@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useEffect, useState } from 'react';
+import { PageTransition } from '@/components/page-transition';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: '📊' },
@@ -127,7 +128,9 @@ export default function DashboardLayout({
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 overflow-auto mb-20 md:mb-0">{children}</main>
+      <main className="flex-1 overflow-auto mb-20 md:mb-0">
+        <PageTransition>{children}</PageTransition>
+      </main>
 
       {/* BOTTOM NAVIGATION - Mobile Only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#111111] border-t border-[#2A2A2A] flex justify-around py-3 z-50">
