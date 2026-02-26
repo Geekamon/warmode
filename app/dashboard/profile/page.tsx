@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, profile, signOut, updateProfile } = useAuth();
+  const { user, profile, loading, signOut, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -135,10 +135,38 @@ export default function ProfilePage() {
     return roles[r] || r;
   };
 
-  if (!user || !profile) {
+  // Still loading auth state
+  if (loading) {
     return (
       <div className="bg-[#0A0A0A] min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#F9A825] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Not logged in
+  if (!user) {
+    router.push('/login');
+    return null;
+  }
+
+  // Profile failed to load
+  if (!profile) {
+    return (
+      <div className="bg-[#0A0A0A] min-h-screen flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="text-5xl mb-4">😤</div>
+          <h2 className="text-xl font-bold text-white mb-2">Couldn&apos;t load profile</h2>
+          <p className="text-[#9E9E9E] mb-6 text-sm">
+            There was a problem loading your profile. This could be a network issue.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-[#F9A825] text-[#0A0A0A] font-semibold rounded-lg hover:bg-[#F9B840] transition-colors"
+          >
+            Reload Page
+          </button>
+        </div>
       </div>
     );
   }

@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, email, full_name, phone, city, role, plan, streak_current, streak_best, total_sessions, total_hours, notification_prefs, created_at')
         .eq('id', userId)
         .single();
 
@@ -34,6 +34,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
+      // Retry with minimal columns in case notification_prefs column doesn't exist yet
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('id, email, full_name, phone, city, role, plan, streak_current, streak_best, total_sessions, total_hours, created_at')
+          .eq('id', userId)
+          .single();
+        if (data) {
+          setProfile({ ...data, notification_prefs: null } as Profile);
+          return;
+        }
+      } catch {
+        // both attempts failed
+      }
       setProfile(null);
     }
   };
