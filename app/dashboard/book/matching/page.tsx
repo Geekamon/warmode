@@ -17,6 +17,7 @@ export default function MatchingPage() {
   const goal = searchParams.get('goal') || '';
   const scheduledTime = searchParams.get('time') || '';
   const scheduledDate = searchParams.get('date') || '';
+  const joinSessionId = searchParams.get('join') || ''; // direct join from lobby
 
   const [isMatched, setIsMatched] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -88,20 +89,34 @@ export default function MatchingPage() {
 
     async function findMatch() {
       try {
-        // Call the match_session function in Supabase
-        const { data, error } = await supabase.rpc('match_session', {
-          p_user_id: user!.id,
-          p_duration: parseInt(duration),
-          p_mode: mode,
-          p_match_type: matchType,
-        });
+        let matchedSessionId: string;
 
-        if (error) throw error;
+        if (joinSessionId) {
+          // Direct join — user clicked JOIN on an open session from the lobby
+          const { error: joinError } = await supabase
+            .from('sessions')
+            .update({ partner_id: user!.id, status: 'matched' })
+            .eq('id', joinSessionId)
+            .eq('status', 'open');
 
-        const matchedSessionId = data as string;
+          if (joinError) throw joinError;
+          matchedSessionId = joinSessionId;
+        } else {
+          // Normal flow — call the match_session RPC
+          const { data, error } = await supabase.rpc('match_session', {
+            p_user_id: user!.id,
+            p_duration: parseInt(duration),
+            p_mode: mode,
+            p_match_type: matchType,
+          });
+
+          if (error) throw error;
+          matchedSessionId = data as string;
+        }
+
         setSessionId(matchedSessionId);
 
-        // Small delay to let the RPC transaction fully commit before reading
+        // Small delay to let the transaction fully commit before reading
         await new Promise((r) => setTimeout(r, 500));
 
         // Read session back — retry up to 3 times if status hasn't propagated
@@ -131,7 +146,7 @@ export default function MatchingPage() {
           }
 
           if (session.partner_id && (session.status === 'matched' || !weAreHost)) {
-            // We joined an existing session (we're the partner) OR session is already matched
+            // We joined an existing session or session is already matched
             const partnerId = weAreHost ? session.partner_id : session.host_id;
             await handleMatchFound(partnerId!);
           } else {
