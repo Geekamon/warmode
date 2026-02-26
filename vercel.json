@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/session-reminders",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/streak-check",
+      "schedule": "0 1 * * *"
+    }
+  ]
+}

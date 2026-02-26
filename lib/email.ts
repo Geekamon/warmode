@@ -87,6 +87,9 @@ function emailWrapper(content: string) {
           <p style="color: #9E9E9E; font-size: 12px; margin: 0;">
             WarMode — Accountability for the Nigerian hustle
           </p>
+          <p style="color: #666; font-size: 11px; margin: 8px 0 0;">
+            <a href="${APP_URL}/dashboard/profile" style="color: #666; text-decoration: underline;">Manage notification preferences</a>
+          </p>
         </div>
       </div>
     </div>
