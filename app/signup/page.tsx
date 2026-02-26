@@ -52,7 +52,7 @@ export default function SignupPage() {
     }
 
     try {
-      await signUp(formData.email, formData.password, formData.fullName);
+      await signUp(formData.email, formData.password, formData.fullName, formData.phone);
       // Redirect to onboarding
       router.push('/onboarding');
     } catch (err) {
