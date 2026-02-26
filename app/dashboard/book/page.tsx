@@ -16,9 +16,9 @@ const SESSION_MODES = [
 
 const MATCH_PREFERENCES = [
   { value: 'anyone', label: 'Anyone' },
-  { value: 'same-city', label: 'Same City' },
-  { value: 'same-role', label: 'Same Role' },
-  { value: 'favorites', label: 'Favorites' },
+  { value: 'city', label: 'Same City' },
+  { value: 'role', label: 'Same Role' },
+  { value: 'favorite', label: 'Favorites' },
 ];
 
 const TIME_SLOTS = [
@@ -43,7 +43,8 @@ export default function BookPage() {
 
   const handleActivateWar = () => {
     const goalParam = goal.trim() ? `&goal=${encodeURIComponent(goal.trim())}` : '';
-    router.push(`/dashboard/book/matching?duration=${duration}&mode=${sessionMode}&match=${matchPreference}${goalParam}`);
+    const timeParam = selectedTime !== 'Now' ? `&time=${encodeURIComponent(selectedTime)}&date=${selectedDate}` : '';
+    router.push(`/dashboard/book/matching?duration=${duration}&mode=${sessionMode}&match=${matchPreference}${goalParam}${timeParam}`);
   };
 
   const dateOptions = [

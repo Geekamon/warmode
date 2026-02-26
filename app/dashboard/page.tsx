@@ -213,26 +213,35 @@ export default function DashboardPage() {
 
         if (error) throw error;
 
-        // Fetch partner names
-        if (data) {
-          const sessionsWithNames = await Promise.all(
-            data.map(async (session) => {
-              const partnerId = session.host_id === user.id ? session.partner_id : session.host_id;
-              const { data: partnerData } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', partnerId)
-                .single();
+        // Fetch partner names in one batch query
+        if (data && data.length > 0) {
+          const partnerIds = data.map((s) =>
+            s.host_id === user.id ? s.partner_id : s.host_id
+          ).filter(Boolean);
 
-              return {
-                id: session.id,
-                partner_name: partnerData?.full_name || 'Unknown',
-                duration: session.duration,
-                ended_at: session.ended_at,
-                status: session.status,
-              };
-            })
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .in('id', partnerIds);
+
+          const profileMap = (profiles || []).reduce(
+            (map: Record<string, string>, p: { id: string; full_name: string }) => {
+              map[p.id] = p.full_name;
+              return map;
+            },
+            {} as Record<string, string>
           );
+
+          const sessionsWithNames = data.map((session) => {
+            const partnerId = session.host_id === user.id ? session.partner_id : session.host_id;
+            return {
+              id: session.id,
+              partner_name: profileMap[partnerId] || 'Unknown',
+              duration: session.duration,
+              ended_at: session.ended_at,
+              status: session.status,
+            };
+          });
 
           setRecentSessions(sessionsWithNames);
         }

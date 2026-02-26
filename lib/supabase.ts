@@ -18,6 +18,7 @@ export interface Profile {
   streak_best: number;
   total_sessions: number;
   total_hours: number;
+  notification_prefs: { email: boolean; reminders: boolean } | null;
   created_at: string;
 }
 

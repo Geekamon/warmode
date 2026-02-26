@@ -14,6 +14,9 @@ export default function MatchingPage() {
   const duration = searchParams.get('duration') || '50';
   const mode = searchParams.get('mode') || 'video';
   const matchType = searchParams.get('match') || 'anyone';
+  const goal = searchParams.get('goal') || '';
+  const scheduledTime = searchParams.get('time') || '';
+  const scheduledDate = searchParams.get('date') || '';
 
   const [isMatched, setIsMatched] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -52,6 +55,15 @@ export default function MatchingPage() {
         if (session) {
           const weAreHost = session.host_id === user!.id;
           setIsHost(weAreHost);
+
+          // Save goal to session
+          if (goal) {
+            const goalField = weAreHost ? 'host_goal' : 'partner_goal';
+            await supabase
+              .from('sessions')
+              .update({ [goalField]: goal })
+              .eq('id', matchedSessionId);
+          }
 
           if (session.status === 'matched' || session.partner_id) {
             // Already matched — get partner info

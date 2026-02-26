@@ -22,8 +22,13 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push('/');
+  };
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -106,7 +111,7 @@ export default function DashboardLayout({
 
         {/* USER PROFILE AT BOTTOM */}
         <div className="px-3 py-6 border-t border-[#2A2A2A]">
-          <div className="flex items-center gap-3 px-3">
+          <div className="flex items-center gap-3 px-3 mb-3">
             {/* Avatar Circle */}
             <div className="w-12 h-12 rounded-full bg-[#F9A825] flex items-center justify-center flex-shrink-0">
               <span className="text-sm font-bold text-[#0A0A0A]">
@@ -124,6 +129,15 @@ export default function DashboardLayout({
               </p>
             </div>
           </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-[#D32F2F] hover:bg-[#D32F2F] hover:bg-opacity-10 transition-all duration-200"
+          >
+            <span className="text-lg">🚪</span>
+            <span>Log Out</span>
+          </button>
         </div>
       </aside>
 

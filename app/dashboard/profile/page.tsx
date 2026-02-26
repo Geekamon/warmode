@@ -24,7 +24,7 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordSaving, setPasswordSaving] = useState(false);
 
-  // Notification preferences (stored in localStorage for now)
+  // Notification preferences
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [sessionReminders, setSessionReminders] = useState(true);
   const [showNotifSettings, setShowNotifSettings] = useState(false);
@@ -36,20 +36,13 @@ export default function ProfilePage() {
       setPhone(profile.phone || '');
       setCity(profile.city || '');
       setRole(profile.role || '');
-    }
-  }, [profile]);
-
-  // Load notification prefs
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const prefs = localStorage.getItem('warmode_notif_prefs');
-      if (prefs) {
-        const parsed = JSON.parse(prefs);
-        setEmailNotifications(parsed.email ?? true);
-        setSessionReminders(parsed.reminders ?? true);
+      // Load notification prefs from profile
+      if (profile.notification_prefs) {
+        setEmailNotifications(profile.notification_prefs.email ?? true);
+        setSessionReminders(profile.notification_prefs.reminders ?? true);
       }
     }
-  }, []);
+  }, [profile]);
 
   const handleSaveProfile = async () => {
     setSaving(true);
@@ -97,14 +90,20 @@ export default function ProfilePage() {
     }
   };
 
-  const handleSaveNotifPrefs = () => {
-    localStorage.setItem('warmode_notif_prefs', JSON.stringify({
-      email: emailNotifications,
-      reminders: sessionReminders,
-    }));
-    setShowNotifSettings(false);
-    setMessage({ type: 'success', text: 'Notification preferences saved!' });
-    setTimeout(() => setMessage(null), 3000);
+  const handleSaveNotifPrefs = async () => {
+    try {
+      await updateProfile({
+        notification_prefs: {
+          email: emailNotifications,
+          reminders: sessionReminders,
+        },
+      } as any);
+      setShowNotifSettings(false);
+      setMessage({ type: 'success', text: 'Notification preferences saved!' });
+      setTimeout(() => setMessage(null), 3000);
+    } catch {
+      setMessage({ type: 'error', text: 'Failed to save notification preferences.' });
+    }
   };
 
   const handleLogout = async () => {

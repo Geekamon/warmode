@@ -3,8 +3,18 @@ import "./globals.css";
 import { Providers } from "@/lib/providers";
 
 export const metadata: Metadata = {
-  title: "WarMode — Activate War Mode",
+  title: {
+    default: "WarMode — Activate War Mode",
+    template: "%s — WarMode",
+  },
   description: "Virtual coworking & accountability platform built for Nigeria. Go to war with your goals.",
+  metadataBase: new URL("https://warmode-drab.vercel.app"),
+  openGraph: {
+    title: "WarMode — Activate War Mode",
+    description: "Virtual coworking & accountability platform built for Nigeria. Go to war with your goals.",
+    siteName: "WarMode",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
