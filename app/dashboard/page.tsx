@@ -478,9 +478,12 @@ export default function DashboardPage() {
               </div>
 
               {/* Action Button */}
-              <button className="w-full mt-4 bg-[#F9A825] hover:bg-[#E89B1F] text-[#0A0A0A] font-semibold py-3 rounded-lg transition-all duration-200">
+              <Link
+                href={`/dashboard/book/session?id=${nextSession.id}&duration=${nextSession.duration}&mode=${nextSession.mode}&host=${nextSession.host_id === user?.id}`}
+                className="block w-full mt-4 bg-[#F9A825] hover:bg-[#E89B1F] text-[#0A0A0A] font-semibold py-3 rounded-lg transition-all duration-200 text-center"
+              >
                 Join Now
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="flex items-center justify-center h-64">

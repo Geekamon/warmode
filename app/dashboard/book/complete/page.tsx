@@ -12,11 +12,15 @@ export default function CompletePage() {
   const [selectedRating, setSelectedRating] = useState<string | null>(null);
   const [ratingSaved, setRatingSaved] = useState(false);
   const [sessionData, setSessionData] = useState<any>(null);
+  const [partnerName, setPartnerName] = useState('');
+  const [partnerId, setPartnerId] = useState<string | null>(null);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [togglingFav, setTogglingFav] = useState(false);
 
   const sessionId = searchParams.get('session');
   const duration = searchParams.get('duration') || '50';
 
-  // Fetch session data
+  // Fetch session data and partner info
   useEffect(() => {
     if (!sessionId || !user) return;
     const fetchSession = async () => {
@@ -25,10 +29,57 @@ export default function CompletePage() {
         .select('*')
         .eq('id', sessionId)
         .single();
-      if (data) setSessionData(data);
+      if (data) {
+        setSessionData(data);
+        const pId = data.host_id === user.id ? data.partner_id : data.host_id;
+        setPartnerId(pId);
+
+        // Fetch partner name
+        if (pId) {
+          const { data: partner } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', pId)
+            .single();
+          if (partner) setPartnerName(partner.full_name);
+
+          // Check if already favorited
+          const { data: fav } = await supabase
+            .from('favorites')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('favorite_id', pId)
+            .maybeSingle();
+          if (fav) setIsFavorited(true);
+        }
+      }
     };
     fetchSession();
   }, [sessionId, user]);
+
+  const toggleFavorite = async () => {
+    if (!user || !partnerId || togglingFav) return;
+    setTogglingFav(true);
+    try {
+      if (isFavorited) {
+        await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('favorite_id', partnerId);
+        setIsFavorited(false);
+      } else {
+        await supabase
+          .from('favorites')
+          .insert({ user_id: user.id, favorite_id: partnerId });
+        setIsFavorited(true);
+      }
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+    } finally {
+      setTogglingFav(false);
+    }
+  };
 
   const handleRate = async (value: string) => {
     setSelectedRating(value);
@@ -112,6 +163,23 @@ export default function CompletePage() {
             ))}
           </div>
         </div>
+
+        {/* Favorite Partner */}
+        {partnerId && partnerName && (
+          <div className="mb-8 md:mb-12">
+            <button
+              onClick={toggleFavorite}
+              disabled={togglingFav}
+              className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                isFavorited
+                  ? 'bg-[#F9A825] bg-opacity-15 border border-[#F9A825] text-[#F9A825]'
+                  : 'bg-[#1E1E1E] border border-[#2A2A2A] text-white hover:border-[#F9A825]'
+              }`}
+            >
+              {togglingFav ? '...' : isFavorited ? `⭐ ${partnerName} is a favorite` : `☆ Add ${partnerName} to favorites`}
+            </button>
+          </div>
+        )}
 
         {/* CTA Buttons */}
         <div className="flex flex-col gap-3">
