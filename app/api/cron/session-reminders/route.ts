@@ -2,16 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendSessionReminderEmail } from '@/lib/email';
 
-// Runs every 5 minutes via Vercel Cron
-// Finds sessions starting in 10-15 minutes and sends reminder emails
+// Runs daily at 6:00 AM UTC via Vercel Cron
+// Sends reminder emails for all matched sessions scheduled today
 export async function GET(req: NextRequest) {
-  // Verify cron secret (Vercel sends this automatically for cron jobs)
+  // Verify cron secret
   const authHeader = req.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Use service-level supabase client (bypass RLS for cron)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -19,17 +18,16 @@ export async function GET(req: NextRequest) {
 
   try {
     const now = new Date();
-    const in10min = new Date(now.getTime() + 10 * 60 * 1000);
-    const in15min = new Date(now.getTime() + 15 * 60 * 1000);
+    const todayEnd = new Date(now);
+    todayEnd.setHours(23, 59, 59, 999);
 
-    // Find matched sessions starting in the next 10-15 minutes
-    // that haven't been reminded yet
+    // Find all matched sessions scheduled for today
     const { data: sessions, error } = await supabase
       .from('sessions')
       .select('id, host_id, partner_id, duration, scheduled_at')
       .eq('status', 'matched')
-      .gte('scheduled_at', in10min.toISOString())
-      .lte('scheduled_at', in15min.toISOString());
+      .gte('scheduled_at', now.toISOString())
+      .lte('scheduled_at', todayEnd.toISOString());
 
     if (error) {
       console.error('Cron: Error fetching sessions:', error);
@@ -37,7 +35,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (!sessions || sessions.length === 0) {
-      return NextResponse.json({ message: 'No upcoming sessions', sent: 0 });
+      return NextResponse.json({ message: 'No sessions today', sent: 0 });
     }
 
     let sent = 0;
@@ -85,7 +83,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({
-      message: `Sent ${sent} reminder emails`,
+      message: `Sent ${sent} reminder emails for ${sessions.length} sessions`,
       sent,
       sessions: sessions.length,
     });
