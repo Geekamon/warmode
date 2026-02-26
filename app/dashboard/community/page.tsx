@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@clerk/nextjs';
-import { createClient } from '@supabase/supabase-js';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 
 interface LeaderboardProfile {
   id: string;
@@ -20,7 +20,8 @@ interface FavoritePartner {
 }
 
 export default function CommunityPage() {
-  const { userId } = useAuth();
+  const { user } = useAuth();
+  const userId = user?.id;
   const [totalProfiles, setTotalProfiles] = useState(0);
   const [todayCompletedSessions, setTodayCompletedSessions] = useState(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardProfile[]>([]);
@@ -30,11 +31,6 @@ export default function CommunityPage() {
   useEffect(() => {
     const fetchCommunityData = async () => {
       if (!userId) return;
-
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
 
       // Count total profiles
       const { count: profileCount } = await supabase

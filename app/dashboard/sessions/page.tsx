@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@clerk/nextjs';
-import { createClient } from '@supabase/supabase-js';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 
 const filterTabs = [
   { label: 'All', value: 'all' },
@@ -25,7 +25,8 @@ interface Session {
 }
 
 export default function SessionsPage() {
-  const { userId } = useAuth();
+  const { user } = useAuth();
+  const userId = user?.id;
   const [activeFilter, setActiveFilter] = useState('all');
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,11 +34,6 @@ export default function SessionsPage() {
   useEffect(() => {
     const fetchSessions = async () => {
       if (!userId) return;
-
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
 
       const { data: userSessions, error } = await supabase
         .from('sessions')

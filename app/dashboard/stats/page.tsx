@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@clerk/nextjs';
-import { createClient } from '@supabase/supabase-js';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 import {
   BarChart,
   Bar,
@@ -29,7 +29,8 @@ interface SessionData {
 }
 
 export default function StatsPage() {
-  const { userId } = useAuth();
+  const { user } = useAuth();
+  const userId = user?.id;
   const [profile, setProfile] = useState<Profile | null>(null);
   const [uniquePartners, setUniquePartners] = useState(0);
   const [avgCompletionRate, setAvgCompletionRate] = useState(0);
@@ -43,11 +44,6 @@ export default function StatsPage() {
   useEffect(() => {
     const fetchStats = async () => {
       if (!userId) return;
-
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
 
       // Fetch profile stats
       const { data: profileData } = await supabase
